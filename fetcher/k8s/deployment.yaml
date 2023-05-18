@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  labels:
+    app: fetcher
+  name: fetcher
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fetcher
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: fetcher
+    spec:
+      containers:
+        - image: evgeniymai/ita-fetcher:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          name: ita-fetcher
+          env:
+            - name: INTEVRIEW_INTUIT_TWITTER_POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: intuit-twitter-config
+                  key: INTEVRIEW_INTUIT_TWITTER_POSTGRES_PASSWORD
+            - name: INTUIT_KEYWORD
+              value: TurboTax
+      restartPolicy: Always
